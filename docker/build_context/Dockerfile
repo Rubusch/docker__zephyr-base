@@ -1,4 +1,4 @@
-FROM debian:11
+FROM debian:11 AS zephyr-base
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
 
