@@ -187,4 +187,4 @@ USER $USER
 # RUN dpkg -i /home/$USER/JLink_Linux_V644e_x86_64.deb
 
 COPY *.sh /usr/local/bin/
-CMD ["/bin/bash", "/bin/cat /etc/issue"]
+CMD ["/bin/cat", "/etc/issue"]
