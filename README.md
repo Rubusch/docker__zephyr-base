@@ -23,9 +23,9 @@ Preparation
 
 ```
 $ cd ./docker
-$ export UID="$(id -u)"
-$ export GID="$(id -g)"
-$ export USER="$(whoami)"
+$ export ENV_UID="$(id -u)"
+$ export ENV_GID="$(id -g)"
+$ export ENV_USER="$(whoami)"
 ```
 
 Building  

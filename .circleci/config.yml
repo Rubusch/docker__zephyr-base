@@ -9,4 +9,4 @@ jobs:
 
      ## setup only
      - checkout
-     - run: cd ./docker && export UID="$(id -u)" && export GID="$(id -g)" && export USER="$(whoami)" && docker-compose up --exit-code-from zephyr-base
+     - run: cd ./docker && export ENV_UID="$(id -u)" && export ENV_GID="$(id -g)" && export ENV_USER="$(whoami)" && docker-compose up --exit-code-from zephyr-base

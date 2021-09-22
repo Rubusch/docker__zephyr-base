@@ -6,9 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ################################################################################
 ## the USER is needed to make it available as --build-arg
 ## in case docker complains for a not set USER, perhaps you forgot to use --build-arg USER=$USER
-ARG USER="${USER}"
-ARG GID="${GID}"
-ARG UID="${UID}"
+ARG USER="${ENV_USER}"
+ARG GID="${ENV_GID}"
+ARG UID="${ENV_UID}"
 ARG MY_CONFIGS="/home/$USER/configs"
 ARG MY_CMAKE_VERSION="3.20.5"
 ARG MY_ZEPHYR_SDK_VERSION="0.13.0"
