@@ -22,7 +22,6 @@ ARG MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 RUN apt-get update && apt-get upgrade -y && apt-get autoremove -y --purge
 
 ## basic build and container setup
-#RUN apt-get install -y
 RUN apt-get install -y apt-utils
 RUN apt-get install -y tzdata
 RUN apt-get install -y locales
@@ -35,7 +34,6 @@ RUN apt-get install -y openssh-client
 RUN apt-get install -y libssl-dev
 
 ## zephyr setup
-#RUN apt-get install -y --no-install-recommends 
 RUN apt-get install -y aptitude
 RUN apt-get install -y git
 RUN apt-get install -y tig
@@ -73,7 +71,6 @@ RUN apt-get install -y htop
 ################################################################################
 ## local settings
 RUN locale-gen en_US.UTF-8
-
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
@@ -81,15 +78,10 @@ ENV LC_ALL en_US.UTF-8
 
 ################################################################################
 ## setup user and run stuff under user
-# RUN useradd "$USER" -m --password "$USER"
-# RUN usermod -a -G sudo "$USER"
-
 RUN groupadd -g "$GID" "$USER"
 RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
 RUN usermod -a -G sudo "$USER"
-
 RUN sed -i '/%sudo/s/.*/%sudo   ALL=NOPASSWD: ALL/' /etc/sudoers
-
 RUN mkdir -p /usr/local
 RUN chown -R "${USER}":"${USER}" /usr/local
 RUN mkdir -p /opt
@@ -148,8 +140,8 @@ RUN ./"${MY_ZEPHYR_SDK}" -- -d "/usr/local/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 RUN rm -rf "${MY_ZEPHYR_SDK}"
 
 ## (opt) udev rules for later flashing
-#RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
-#RUN cd /home/$USER && sudo udevadm control --reload
+RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+RUN cd /home/$USER && sudo udevadm control --reload
 
 ## (opt) set up 'unset preset flags' command script
 RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
@@ -182,11 +174,5 @@ RUN mkdir -p /home/$USER/.ssh
 ################################################################################
 ## command mode
 USER $USER
-
-## segger (...)
-# TODO SEGGER? DEBUGGING    
-# COPY JLink_Linux_V644e_x86_64.deb /home/$USER/JLink_Linux_V644e_x86_64.deb
-# RUN dpkg -i /home/$USER/JLink_Linux_V644e_x86_64.deb
-
 COPY *.sh /usr/local/bin/
 CMD ["/bin/cat", "/etc/issue"]
