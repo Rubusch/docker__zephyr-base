@@ -5,3 +5,6 @@
 
 ## ignore output folder
 zephyrproject
+
+## ignore individual user settings
+.env

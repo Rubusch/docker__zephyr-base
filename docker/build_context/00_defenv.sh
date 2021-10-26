@@ -3,8 +3,7 @@
 ##
 ## call, optionally with additionally mounted folders:
 ## $0 <folder1> <folder2>...
-
-MY_USER="$(whoami)"
+MY_USER="${USER}"
 MY_HOME="/home/${MY_USER}"
 SSH_DIR="${MY_HOME}/.ssh"
 SSH_KNOWN_HOSTS="${SSH_DIR}/known_hosts"
@@ -21,7 +20,7 @@ done
 ## ssh known_hosts
 touch "${SSH_KNOWN_HOSTS}"
 for item in "github.com" "bitbucket.org"; do
-    SSH_HOSTS="$( grep "${item}" -r "${SSH_KNOWN_HOSTS}" )"
+    SSH_HOSTS="$( grep "${item}" -r "${SSH_KNOWN_HOSTS}" )" || true
     if [ -z "${SSH_HOSTS}" ]; then
         ssh-keyscan "${item}" >> "${SSH_KNOWN_HOSTS}"
     fi

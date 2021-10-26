@@ -3,31 +3,32 @@ version: '3.8'
 services:
     zephyr-base:
         container_name: zephyr-base
-        image: ${USER}/zephyr-base:20210922
+        image: ${USER}/zephyr-base:20211026
         build:
             context: build_context
             dockerfile: Dockerfile
             args:
-                USER: "${ENV_USER}"
-                UID: "${ENV_UID}"
-                GID: "${ENV_GID}"
-
+                USER: "${USER}"
+                UID: "${UID}"
+                GID: "${GID}"
         user: "${UID}:${GID}"
         stdin_open: true          ## docker run -i
         tty: true                 ## docker run -t
-        #privileged: true
-
+        privileged: true
         environment:
           - USER
-
+        env_file:
+          - .env
         volumes:
-          - ~/.gitconfig:/home/$USER/.gitconfig:ro
-          #- ~/.ssh:/home/${USER}/.ssh
-          ## actually bind mount .ssh to update known_hosts
+          ## folder must be around
           - type: bind
             source: ~/.ssh
             target: /home/${USER}/.ssh
-          - ./zephyrproject:/home/${USER}/zephyrproject ## NB: folder does not need to be around
+          #- ~/.ssh:/home/${USER}/.ssh
+          ## actually bind mount .ssh to update known_hosts
           - type: bind
-            source: ./build_configs ## NB: folder must be around
+            source: ./build_configs
             target: /home/$USER/configs
+          ## NB: folder does not need to be around
+          - ~/.gitconfig:/home/$USER/.gitconfig:ro
+          - ./zephyrproject:/home/${USER}/zephyrproject

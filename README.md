@@ -10,11 +10,12 @@ Base container for zephyr projects.
 ## Tools Needed
 
 ```
-$ sudo curl -L "https://github.com/docker/compose/releases/download/1.28.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-$ sudo chmod a+x /usr/local/bin/docker-compose
+$ sudo apt-get install -y libffi-dev libssl-dev
+$ sudo apt-get install -y python3-dev
+$ sudo apt-get install -y python3 python3-pip
+$ pip3 install docker-compose
 ```
-
-NB: Where 1.28.6 is the latest version (currently not supported by devian/ubuntu package management)  
+Make sure, ``~/.local`` is within ``$PATH`` or re-link e.g. it to ``/usr/local``.  
 
 
 ## Build
@@ -23,9 +24,8 @@ Preparation
 
 ```
 $ cd ./docker
-$ export ENV_UID="$(id -u)"
-$ export ENV_GID="$(id -g)"
-$ export ENV_USER="$(whoami)"
+$ echo "UID=$(id -u)" > .env
+$ echo "GID=$(id -g)" >> .env
 ```
 
 Building  
@@ -34,9 +34,10 @@ Building
 $ docker-compose up
 ```
 
+
 ## Usage
 
-Preparation as above, then get a shell as follows  
+Preparation as above  
 
 ```
 $ docker-compose -f ./docker-compose.yml run --rm zephyr-base /bin/bash
@@ -48,5 +49,3 @@ Make sure the device is plugged (/dev/ttyACM0 exists)
 NB: Appending ``--privileged`` is not _safe_! Mainly this is used for such things as connecting the USB (SEGGER) the easiest way possible.  
 
 NB: Append ``/bin/bash`` to enter the current container for debugging  
-
-

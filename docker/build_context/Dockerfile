@@ -4,17 +4,18 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 
 ################################################################################
-## the USER is needed to make it available as --build-arg
-## in case docker complains for a not set USER, perhaps you forgot to use --build-arg USER=$USER
-ARG USER="${ENV_USER}"
-ARG GID="${ENV_GID}"
-ARG UID="${ENV_UID}"
-ARG MY_CONFIGS="/home/$USER/configs"
-ARG MY_CMAKE_VERSION="3.20.5"
-ARG MY_ZEPHYR_SDK_VERSION="0.13.0"
-ARG MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
+## environment
+ARG USER="${USER}"
+ARG GID="${GID}"
+ARG UID="${UID}"
+
+ENV MY_CONFIGS="/home/$USER/configs"
+ENV MY_CMAKE_VERSION="3.20.5"
+ENV MY_ZEPHYR_SDK_VERSION="0.13.0"
+ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
+
 ## older version
-#ARG MY_ZEPHYR_SDK="zephyr-sdk-${ZEPHYR_SDK_VERSION}-setup.run"
+#ENV MY_ZEPHYR_SDK="zephyr-sdk-${ZEPHYR_SDK_VERSION}-setup.run"
 
 
 ################################################################################
@@ -22,6 +23,7 @@ ARG MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 RUN apt-get update && apt-get upgrade -y && apt-get autoremove -y --purge
 
 ## basic build and container setup
+#RUN apt-get install -y
 RUN apt-get install -y apt-utils
 RUN apt-get install -y tzdata
 RUN apt-get install -y locales
@@ -34,6 +36,7 @@ RUN apt-get install -y openssh-client
 RUN apt-get install -y libssl-dev
 
 ## zephyr setup
+#RUN apt-get install -y --no-install-recommends
 RUN apt-get install -y aptitude
 RUN apt-get install -y git
 RUN apt-get install -y tig
@@ -77,7 +80,7 @@ ENV LC_ALL en_US.UTF-8
 
 
 ################################################################################
-## setup user and run stuff under user
+## user settings
 RUN groupadd -g "$GID" "$USER"
 RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
 RUN usermod -a -G sudo "$USER"
@@ -148,7 +151,7 @@ RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
 
 
 ################################################################################
-## get sources
+## configs and mount points
 USER ${USER}
 WORKDIR /home/${USER}
 
@@ -174,5 +177,12 @@ RUN mkdir -p /home/$USER/.ssh
 ################################################################################
 ## command mode
 USER $USER
+WORKDIR /home/$USER
+
+## segger (...)
+# TODO SEGGER? DEBUGGING    
+# COPY JLink_Linux_V644e_x86_64.deb /home/$USER/JLink_Linux_V644e_x86_64.deb
+# RUN dpkg -i /home/$USER/JLink_Linux_V644e_x86_64.deb
+
 COPY *.sh /usr/local/bin/
 CMD ["/bin/cat", "/etc/issue"]
