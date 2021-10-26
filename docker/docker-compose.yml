@@ -4,7 +4,7 @@ services:
     zephyr-base:
         container_name: zephyr-base
         image: ${USER}/zephyr-base:DEVELOP
-        build:
+       build:
             context: build_context
             dockerfile: Dockerfile
             args:

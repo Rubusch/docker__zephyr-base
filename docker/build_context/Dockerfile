@@ -69,7 +69,6 @@ RUN apt-get install -y aptitude \
 	colordiff \
 	htop
 
-
 ################################################################################
 ## local settings
 RUN locale-gen en_US.UTF-8
@@ -186,7 +185,6 @@ RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
 ## command mode
 USER "${USER}"
 WORKDIR "/home/${USER}"
-
 ## segger (...)
 # TODO SEGGER? DEBUGGING    
 # COPY JLink_Linux_V644e_x86_64.deb /home/$USER/JLink_Linux_V644e_x86_64.deb
