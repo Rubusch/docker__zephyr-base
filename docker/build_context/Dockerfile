@@ -142,8 +142,8 @@ RUN ./"${MY_ZEPHYR_SDK}" -- -d "/usr/local/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 RUN rm -rf "${MY_ZEPHYR_SDK}"
 
 ## (opt) udev rules for later flashing
-RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
-RUN cd /home/$USER && sudo udevadm control --reload
+#RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+#RUN cd /home/$USER && sudo udevadm control --reload
 
 ## (opt) set up 'unset preset flags' command script
 RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
