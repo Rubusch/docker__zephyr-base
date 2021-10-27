@@ -23,52 +23,51 @@ ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 RUN apt-get update && apt-get upgrade -y && apt-get autoremove -y --purge
 
 ## basic build and container setup
-#RUN apt-get install -y
-RUN apt-get install -y apt-utils
-RUN apt-get install -y tzdata
-RUN apt-get install -y locales
-RUN apt-get install -y build-essential
-RUN apt-get install -y flex
-RUN apt-get install -y bison
-RUN apt-get install -y libncurses5
-RUN apt-get install -y udev
-RUN apt-get install -y openssh-client
-RUN apt-get install -y libssl-dev
+RUN apt-get install -y apt-utils \
+	tzdata \
+	locales \
+	build-essential \
+	flex \
+	bison \
+	libncurses5 \
+	udev \
+	openssh-client \
+	libssl-dev
 
 ## zephyr setup
 #RUN apt-get install -y --no-install-recommends
-RUN apt-get install -y aptitude
-RUN apt-get install -y git
-RUN apt-get install -y tig
-RUN apt-get install -y ninja-build
-RUN apt-get install -y gperf
-RUN apt-get install -y ccache
-RUN apt-get install -y dfu-util
-RUN apt-get install -y device-tree-compiler
-RUN apt-get install -y wget
-RUN apt-get install -y libpython3.8
-RUN apt-get install -y python3-dev
-RUN apt-get install -y python3-pip
-RUN apt-get install -y python3-setuptools
-RUN apt-get install -y python3-tk
-RUN apt-get install -y python3-wheel
-RUN apt-get install -y xz-utils
-RUN apt-get install -y file
-RUN apt-get install -y make
-RUN apt-get install -y gcc
-RUN apt-get install -y gcc-multilib
-RUN apt-get install -y g++-multilib
-RUN apt-get install -y libsdl2-dev
-RUN apt-get install -y gnutls-bin
-RUN apt-get install -y usbutils
-RUN apt-get install -y vim
-RUN apt-get install -y screen
-RUN apt-get install -y minicom
-RUN apt-get install -y libpython2.7
-RUN apt-get install -y sudo
-RUN apt-get install -y tree
-RUN apt-get install -y colordiff
-RUN apt-get install -y htop
+RUN apt-get install -y aptitude \
+	git \
+	tig \
+	ninja-build \
+	gperf \
+	ccache \
+	dfu-util \
+	device-tree-compiler \
+	wget \
+	libpython3.8 \
+	python3-dev \
+	python3-pip \
+	python3-setuptools \
+	python3-tk \
+	python3-wheel \
+	xz-utils \
+	file \
+	make \
+	gcc \
+	gcc-multilib \
+	g++-multilib \
+	libsdl2-dev \
+	gnutls-bin \
+	usbutils \
+	vim \
+	screen \
+	minicom \
+	libpython2.7 \
+	sudo \
+	tree \
+	colordiff \
+	htop
 
 
 ################################################################################
@@ -102,8 +101,8 @@ WORKDIR "/opt/cmake-${MY_CMAKE_VERSION}"
 RUN ./bootstrap && make && sudo make install
 
 ## zephyr
-USER $USER
-WORKDIR /home/$USER
+USER "${USER}"
+WORKDIR "/home/${USER}"
 
 ## some ssl tweaks (small buffer, timeouts, etc.)
 ## fix for: "error: RPC failed; curl 56 GnuTLS recv error (-110):
