@@ -9,4 +9,6 @@ jobs:
 
      ## setup only
      - checkout
-     - run: cd ./docker && export ENV_UID="$(id -u)" && export ENV_GID="$(id -g)" && export ENV_USER="$(whoami)" && docker-compose up --exit-code-from zephyr-base
+     - run: cd ./docker && echo "UID=$(id -u)" > .env
+     - run: cd ./docker && echo "GID=$(id -g)" >> .env
+     - run: cd ./docker && docker-compose up --exit-code-from zephyr-base
