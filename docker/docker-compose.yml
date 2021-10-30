@@ -3,7 +3,7 @@ version: '3.8'
 services:
     zephyr-base:
         container_name: zephyr-base
-        image: ${USER}/zephyr-base:20211029
+        image: ${USER}/zephyr-base:20211030
         build:
             context: build_context
             dockerfile: Dockerfile
