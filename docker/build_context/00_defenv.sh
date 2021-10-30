@@ -5,11 +5,12 @@
 ## $0 <folder1> <folder2>...
 MY_USER="${USER}"
 MY_HOME="/home/${MY_USER}"
+MY_CONFIGS="${MY_HOME}/configs"
 SSH_DIR="${MY_HOME}/.ssh"
 SSH_KNOWN_HOSTS="${SSH_DIR}/known_hosts"
 
 ## permissions
-for item in "${MY_HOME}/.gitconfig" "${SSH_DIR}" $*; do
+for item in "${MY_HOME}/.gitconfig" "${SSH_DIR}" "${MY_CONFIGS}" $*; do
     test -e "${item}" || continue
     if [ ! "${MY_USER}" = "$( stat -c %U "${item}" )" ]; then
         ## may take some time

@@ -91,6 +91,31 @@ RUN chown -R "${USER}":"${USER}" /opt
 
 
 ################################################################################
+## configs and mount points
+USER "${USER}"
+WORKDIR "/home/${USER}"
+
+## prepare paths
+RUN mkdir -p /home/${USER}/configs
+RUN mkdir -p /home/${USER}/zephyrproject
+
+## bash config
+RUN rm -f /home/$USER/.bashrc && ln -s ${MY_CONFIGS}/.bashrc /home/$USER/
+
+## vim config
+RUN rm -f /home/$USER/.vimrc && ln -s ${MY_CONFIGS}/.vimrc /home/$USER/
+
+## emacs config
+RUN rm -f /home/$USER/.emacs && ln -s ${MY_CONFIGS}/.emacs /home/$USER/
+
+## user
+RUN echo "export USER=${USER}" >> /home/$USER/.profile
+
+## ssh preparations
+RUN mkdir -p /home/$USER/.ssh
+
+
+################################################################################
 ## tooling
 
 ## cmake in version 3.20+
@@ -100,7 +125,9 @@ RUN tar xzf cmake-*.tar.gz
 WORKDIR "/opt/cmake-${MY_CMAKE_VERSION}"
 RUN ./bootstrap && make && sudo make install
 
-## zephyr
+
+################################################################################
+## zephyr SDK
 USER "${USER}"
 WORKDIR "/home/${USER}"
 
@@ -122,61 +149,43 @@ RUN export PATH=/home/${USER}/.local/bin:${PATH}
 RUN pip3 install --user -U west
 RUN test -d /home/${USER}/zephyrproject/.west || west init zephyrproject
 
-USER $USER
+USER "${USER}"
 WORKDIR /home/$USER/zephyrproject
 RUN west update
 RUN west zephyr-export
 RUN pip3 install --user -r zephyr/scripts/requirements.txt
 
-## folder 'zephyr' will be mounted, so better remove this, to avoid
-## some confusion with overlays...
+## (1/2) use zephyr sources to install python requirements, then remove it again (will be mounted from outside)
 RUN rm -rf /home/$USER/zephyrproject/zephyr
+
+## -> github clone here
+
+## (2/2) 'zephyr' will be mounted, so better remove this, to avoid some confusion with overlays...
+#RUN rm -rf /home/$USER/zephyrproject/zephyr
+
+WORKDIR "/home/${USER}"
+USER "${USER}"
 
 ## zephyr SDK
 ## NB: the following typically fails with 'Error in the pull function'
 ## behind a tunneled connection
-WORKDIR "/home/$USER"
 RUN wget "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${MY_ZEPHYR_SDK_VERSION}/${MY_ZEPHYR_SDK}"
 RUN chmod +x "${MY_ZEPHYR_SDK}"
 RUN ./"${MY_ZEPHYR_SDK}" -- -d "/usr/local/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 RUN rm -rf "${MY_ZEPHYR_SDK}"
 
-## (opt) udev rules for later flashing
+## we're inside docker
 #RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
-#RUN cd /home/$USER && sudo udevadm control --reload
+#RUN sudo udevadm control --reload
 
 ## (opt) set up 'unset preset flags' command script
 RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
 
 
 ################################################################################
-## configs and mount points
-USER ${USER}
-WORKDIR /home/${USER}
-
-## prepare paths
-RUN mkdir -p /home/${USER}/zephyrproject
-
-## bash config
-RUN rm -f /home/$USER/.bashrc && ln -s ${MY_CONFIGS}/.bashrc /home/$USER/
-
-## vim config
-RUN rm -f /home/$USER/.vimrc && ln -s ${MY_CONFIGS}/.vimrc /home/$USER/
-
-## emacs config
-RUN rm -f /home/$USER/.emacs && ln -s ${MY_CONFIGS}/.emacs /home/$USER/
-
-## user
-RUN echo "export USER=${USER}" >> /home/$USER/.profile
-
-## ssh preparations
-RUN mkdir -p /home/$USER/.ssh
-
-
-################################################################################
 ## command mode
-USER $USER
-WORKDIR /home/$USER
+USER "${USER}"
+WORKDIR "/home/${USER}"
 
 ## segger (...)
 # TODO SEGGER? DEBUGGING    
