@@ -3,7 +3,7 @@ version: '3.8'
 services:
     zephyr-base:
         container_name: zephyr-base
-        image: ${USER}/zephyr-base:DEVELOP
+        image: ${USER}/zephyr-base:20211101
         build:
             context: build_context
             dockerfile: Dockerfile
@@ -27,6 +27,6 @@ services:
           - type: bind
             source: ./build_configs
             target: /home/$USER/configs
-          ## NB: folders not need to be around
+          ## folders not need to be around
           - ~/.gitconfig:/home/$USER/.gitconfig:ro
           - ./zephyrproject:/home/${USER}/zephyrproject
