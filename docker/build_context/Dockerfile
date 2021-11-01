@@ -1,7 +1,7 @@
-FROM debian:11 AS zephyr-base
+FROM debian:10 AS zephyr-base
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
-
+## FIXME: debian:11 shows weird keying issues, even after cleaning up / pruning all docker things and running explicit apt-get clean, current quickfix: going back to debian:10
 
 ################################################################################
 ## environment
@@ -20,7 +20,8 @@ ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 
 ################################################################################
 ## set up apt fully functional
-RUN apt-get update && apt-get upgrade -y && apt-get autoremove -y --purge
+RUN apt-get update
+RUN apt-get clean
 
 ## basic build and container setup
 RUN apt-get install -y apt-utils \
