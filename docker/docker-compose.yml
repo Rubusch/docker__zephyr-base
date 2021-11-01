@@ -4,7 +4,7 @@ services:
     zephyr-base:
         container_name: zephyr-base
         image: ${USER}/zephyr-base:DEVELOP
-       build:
+        build:
             context: build_context
             dockerfile: Dockerfile
             args:
@@ -24,11 +24,9 @@ services:
           - type: bind
             source: ~/.ssh
             target: /home/${USER}/.ssh
-          #- ~/.ssh:/home/${USER}/.ssh
-          ## actually bind mount .ssh to update known_hosts
           - type: bind
             source: ./build_configs
             target: /home/$USER/configs
-          ## NB: folder does not need to be around
+          ## NB: folders not need to be around
           - ~/.gitconfig:/home/$USER/.gitconfig:ro
           - ./zephyrproject:/home/${USER}/zephyrproject
