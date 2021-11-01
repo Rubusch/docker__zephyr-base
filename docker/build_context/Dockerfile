@@ -17,7 +17,7 @@ ARG UID="${UID}"
 
 ENV MY_CONFIGS="/home/$USER/configs"
 ENV MY_CMAKE_VERSION="3.20.5"
-ENV MY_ZEPHYR_SDK_VERSION="0.13.0"
+ENV MY_ZEPHYR_SDK_VERSION="0.13.1"
 ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 
 ## older version
