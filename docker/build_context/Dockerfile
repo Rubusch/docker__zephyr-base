@@ -173,6 +173,11 @@ RUN chmod +x "${MY_ZEPHYR_SDK}"
 RUN ./"${MY_ZEPHYR_SDK}" -- -d "/usr/local/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 RUN rm -rf "${MY_ZEPHYR_SDK}"
 
+## SEGGER, JLink tools
+## (approach taken from: https://github.com/Scottapotamas/docker-riscv-zephyr/blob/master/Dockerfile)
+RUN wget -q --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/flasher/JLink_Linux_x86_64.deb
+RUN dpkg -i ./JLink_Linux_x86_64.deb
+
 ## we're inside docker
 #RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
 #RUN sudo udevadm control --reload
@@ -185,10 +190,5 @@ RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
 ## command mode
 USER "${USER}"
 WORKDIR "/home/${USER}"
-## segger (...)
-# TODO SEGGER? DEBUGGING    
-# COPY JLink_Linux_V644e_x86_64.deb /home/$USER/JLink_Linux_V644e_x86_64.deb
-# RUN dpkg -i /home/$USER/JLink_Linux_V644e_x86_64.deb
-
 COPY *.sh /usr/local/bin/
 CMD ["/bin/cat", "/etc/issue"]
