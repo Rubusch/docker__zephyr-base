@@ -1,7 +1,13 @@
-FROM debian:10 AS zephyr-base
+FROM debian:11 AS zephyr-base
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
-## FIXME: debian:11 shows weird keying issues, even after cleaning up / pruning all docker things and running explicit apt-get clean, current quickfix: going back to debian:10
+## FIXME: debian:11 on RPI4 shows weird keying issues,
+## current quickfix on RPI4: going back to debian:10
+## To fix this, you'll need to make sure your Docker version is newer than
+## 19.03.9, and that you have a libseccomp version of 2.4.2 or higher
+## (which isn't available in either buster or buster-backports right now,
+## unfortunately). Thus cannot build debian:11 container on RPI4
+
 
 ################################################################################
 ## environment
@@ -36,7 +42,6 @@ RUN apt-get install -y apt-utils \
 	libssl-dev
 
 ## zephyr setup
-#RUN apt-get install -y --no-install-recommends
 RUN apt-get install -y aptitude \
 	git \
 	tig \
@@ -47,6 +52,8 @@ RUN apt-get install -y aptitude \
 	device-tree-compiler \
 	wget \
 	libpython3.8 \
+	gcc-multilib \
+	g++-multilib \
 	python3-dev \
 	python3-pip \
 	python3-setuptools \
@@ -56,8 +63,6 @@ RUN apt-get install -y aptitude \
 	file \
 	make \
 	gcc \
-	gcc-multilib \
-	g++-multilib \
 	libsdl2-dev \
 	gnutls-bin \
 	usbutils \
@@ -69,6 +74,7 @@ RUN apt-get install -y aptitude \
 	tree \
 	colordiff \
 	htop
+
 
 ################################################################################
 ## local settings
