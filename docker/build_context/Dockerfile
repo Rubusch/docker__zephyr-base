@@ -180,7 +180,8 @@ RUN rm -rf "${MY_ZEPHYR_SDK}"
 ## SEGGER, JLink tools
 ## (approach taken from: https://github.com/Scottapotamas/docker-riscv-zephyr/blob/master/Dockerfile)
 RUN wget -q --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/flasher/JLink_Linux_x86_64.deb
-RUN sudo dpkg -i ./JLink_Linux_x86_64.deb
+RUN sudo apt-get install -y udev libxcb-render0 libxcb-render-util0 libxcb-shape0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0 libxkbcommon-x11-0
+RUN sudo dpkg -i ./JLink_Linux_x86_64.deb || true  ## ignore "Failed to reload udevadm rules, retrying..." errors
 
 ## we're inside docker
 #RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
