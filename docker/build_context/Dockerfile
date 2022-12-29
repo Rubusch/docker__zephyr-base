@@ -12,8 +12,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ################################################################################
 ## environment
 ARG USER="${USER}"
-ARG GID="${GID}"
-ARG UID="${UID}"
 
 ENV MY_CONFIGS="/home/$USER/configs"
 ENV MY_CMAKE_VERSION="3.20.5"
@@ -86,8 +84,7 @@ ENV LC_ALL en_US.UTF-8
 
 ################################################################################
 ## user settings
-RUN groupadd -g "$GID" "$USER"
-RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
+RUN useradd -m -s /bin/bash "$USER"
 RUN usermod -a -G sudo "$USER"
 RUN sed -i '/%sudo/s/.*/%sudo   ALL=NOPASSWD: ALL/' /etc/sudoers
 RUN mkdir -p /usr/local

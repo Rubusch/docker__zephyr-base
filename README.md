@@ -20,16 +20,6 @@ Make sure, ``~/.local`` is within ``$PATH`` or re-link e.g. it to ``/usr/local``
 
 ## Build
 
-Preparation  
-
-```
-$ cd ./docker
-$ echo "UID=$(id -u)" > .env
-$ echo "GID=$(id -g)" >> .env
-```
-
-Building  
-
 ```
 $ docker-compose up
 ```
