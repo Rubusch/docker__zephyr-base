@@ -29,11 +29,11 @@ set hlsearch
 " show matching ()'s []'s {}'s
 set sm
 
-" tabs are 4 spaces long
-set tabstop=4
+" tabs are x spaces long
+set tabstop=8
 
-" when autoindent does a tab, it's 4 spaces long
-set shiftwidth=4
+" when autoindent does a tab
+set shiftwidth=8
 
 " always set autoindenting on
 "set autoindent
@@ -133,10 +133,6 @@ set report=0
 "  set runtimepath+=~/.vim,~/.vim/after,/usr/share/vim/vim60
 "endif
 
-" shiftwidth: number of spaces to use for each insertion of (auto)indent
-"set shiftwidth=8
-"set shiftwidth=2
-
 " shortmess: kind of messages to show; abbreviate them all!
 " new since vim-5.0v: flag 'I' to suppress "intro message".
 "set shortmess=at
@@ -172,6 +168,12 @@ set wrapmargin=1
 
 " writebackup
 set nowritebackup
+
+" select current dir as default when opening the explorer (:Ex)
+set autochdir
+
+" don't do .swp files all over the place
+set noswapfile
 
 " syntax highlighting
 syntax on
@@ -308,3 +310,12 @@ endif
 "endif
 
 
+" kernel configuration
+
+filetype plugin indent on
+"syntax on
+"set title
+"set tabstop=8
+set softtabstop=8
+"set shiftwidth=8
+set noexpandtab

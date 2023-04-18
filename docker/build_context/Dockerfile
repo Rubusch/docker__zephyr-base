@@ -1,17 +1,16 @@
+################################################################################
+## ATTENTION: standalone container
+##
+################################################################################
 FROM debian:11 AS zephyr-base
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
-## FIXME: debian:11 on RPI4 shows weird keying issues,
-## current quickfix on RPI4: going back to debian:10
-## To fix this, you'll need to make sure your Docker version is newer than
-## 19.03.9, and that you have a libseccomp version of 2.4.2 or higher
-## (which isn't available in either buster or buster-backports right now,
-## unfortunately). Thus cannot build debian:11 container on RPI4
-
 
 ################################################################################
 ## environment
 ARG USER="${USER}"
+ARG UID="${UID}"
+ARG GID="${GID}"
 
 ENV MY_CONFIGS="/home/$USER/configs"
 ENV MY_CMAKE_VERSION="3.20.5"
@@ -21,14 +20,15 @@ ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 ## older version
 #ENV MY_ZEPHYR_SDK="zephyr-sdk-${ZEPHYR_SDK_VERSION}-setup.run"
 
-
 ################################################################################
 ## set up apt fully functional
-RUN apt-get update
+USER root
+RUN apt-get update && apt-get autoremove -y --purge
 RUN apt-get clean
 
 ## basic build and container setup
-RUN apt-get install -y apt-utils \
+RUN apt-get install -y \
+	apt-utils \
 	tzdata \
 	locales \
 	build-essential \
@@ -40,8 +40,9 @@ RUN apt-get install -y apt-utils \
 	libssl-dev
 
 ## zephyr setup
-RUN apt-get install -y aptitude \
-	git \
+RUN apt-get install -y \
+	aptitude \
+	git-all \
 	tig \
 	ninja-build \
 	gperf \
@@ -57,22 +58,32 @@ RUN apt-get install -y aptitude \
 	python3-setuptools \
 	python3-tk \
 	python3-wheel \
-	xz-utils \
+	xz-utils 
+
+## development tools
+RUN apt-get install -y \
 	file \
 	make \
 	gcc \
 	libsdl2-dev \
 	gnutls-bin \
 	usbutils \
+	cmake \
 	vim \
+	vim-addon-manager \
+	vim-youcompleteme \
+	emacs \
+	emacs-goodies-el \
+	emacs-goodies-extra-el \
+	exuberant-ctags \
 	screen \
+	mc \
 	minicom \
 	libpython2.7 \
 	sudo \
 	tree \
 	colordiff \
 	htop
-
 
 ################################################################################
 ## local settings
@@ -81,17 +92,16 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-
 ################################################################################
 ## user settings
+USER root
 RUN useradd -m -s /bin/bash "$USER"
 RUN usermod -a -G sudo "$USER"
-RUN sed -i '/%sudo/s/.*/%sudo   ALL=NOPASSWD: ALL/' /etc/sudoers
+RUN echo "$USER  ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN mkdir -p /usr/local
 RUN chown -R "${USER}":"${USER}" /usr/local
 RUN mkdir -p /opt
 RUN chown -R "${USER}":"${USER}" /opt
-
 
 ################################################################################
 ## configs and mount points
@@ -107,9 +117,13 @@ RUN rm -f /home/$USER/.bashrc && ln -s ${MY_CONFIGS}/.bashrc /home/$USER/
 
 ## vim config
 RUN rm -f /home/$USER/.vimrc && ln -s ${MY_CONFIGS}/.vimrc /home/$USER/
+RUN vim-addon-manager install youcompleteme
 
 ## emacs config
 RUN rm -f /home/$USER/.emacs && ln -s ${MY_CONFIGS}/.emacs /home/$USER/
+
+## gitconfig (adjustable for patching)
+RUN rm -f /home/$USER/.gitconfig && ln -s ${MY_CONFIGS}/.gitconfig /home/$USER/
 
 ## user
 RUN echo "export USER=${USER}" >> /home/$USER/.profile
@@ -117,17 +131,16 @@ RUN echo "export USER=${USER}" >> /home/$USER/.profile
 ## ssh preparations
 RUN mkdir -p /home/$USER/.ssh
 
-
 ################################################################################
-## tooling
-
-## cmake in version 3.20+
-WORKDIR "/opt"
-RUN wget "https://github.com/Kitware/CMake/releases/download/v${MY_CMAKE_VERSION}/cmake-${MY_CMAKE_VERSION}.tar.gz"
-RUN tar xzf cmake-*.tar.gz
-WORKDIR "/opt/cmake-${MY_CMAKE_VERSION}"
-RUN ./bootstrap && make && sudo make install
-
+### tooling
+#USER root
+#
+### cmake in version 3.20+
+#WORKDIR "/opt"
+#RUN wget "https://github.com/Kitware/CMake/releases/download/v${MY_CMAKE_VERSION}/cmake-${MY_CMAKE_VERSION}.tar.gz"
+#RUN tar xzf cmake-*.tar.gz
+#WORKDIR "/opt/cmake-${MY_CMAKE_VERSION}"
+#RUN ./bootstrap && make && sudo make install
 
 ################################################################################
 ## zephyr SDK

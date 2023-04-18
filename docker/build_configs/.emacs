@@ -82,7 +82,6 @@
 ;; start doxymacs when opening c/c++ file
 ;(add-hook 'c-mode-common-hook'doxymacs-mode)
 
-
 ;; enable fancy doxygen highlight mode
 ;(defun my-doxymacs-font-lock-hook ()
 ;  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
@@ -91,8 +90,6 @@
 
 ;; load doxymacs at startup
 ;(require 'doxymacs)
-
-
 
 ;;; general C/C++ indention
 ;(autoload 'c++-mode "C++ Editing Mode" t)
@@ -230,8 +227,6 @@ the character typed."
 (global-set-key "\M-[1;2D"    'backward-char)     ; shift+left
 (global-set-key "\M-[1;2A"    'previous-line)     ; shift+up
 (global-set-key "\M-[1;2B"    'next-line)         ; shift+down
-
-
 
 
 ;; auto-completion.el - on the fly autocomplete

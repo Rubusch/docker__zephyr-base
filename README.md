@@ -21,14 +21,21 @@ Make sure, ``~/.local`` is within ``$PATH`` or re-link e.g. it to ``/usr/local``
 ## Build
 
 ```
-$ docker-compose up
+$ cd ./docker
+$ echo "UID=$(id -u)" > .env
+$ echo "GID=$(id -g)" >> .env
+$ docker-compose build
 ```
 
 
 ## Usage
 
-Preparation as above  
+Build target  
+```
+$ docker-compose -f ./docker-compose.yml run --rm zephyr-base
+```
 
+Login to develop  
 ```
 $ docker-compose -f ./docker-compose.yml run --rm zephyr-base /bin/bash
 docker$ build.sh
