@@ -2,7 +2,7 @@
 ## ATTENTION: standalone container
 ##
 ################################################################################
-FROM ubuntu:22.04 AS zephyr
+FROM ubuntu:22.04 AS zephyr3.3
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
 

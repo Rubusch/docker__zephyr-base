@@ -32,12 +32,12 @@ $ docker-compose build
 
 Build target  
 ```
-$ docker-compose -f ./docker-compose.yml run --rm zephyr
+$ docker-compose -f ./docker-compose.yml run --rm zephyr3.3
 ```
 
 Login to develop, e.g. for the SiFive HiFive1 Rev B  
 ```
-$ docker-compose -f ./docker-compose.yml run --rm zephyr /bin/bash
+$ docker-compose -f ./docker-compose.yml run --rm zephyr3.3 /bin/bash
 docker$ cd ./zephyrproject/zephyr
 docker$ west build -b hifive1_revb samples/basic/blinky
 docker$ west flash
