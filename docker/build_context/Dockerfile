@@ -24,7 +24,6 @@ ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 ## set up apt fully functional
 USER root
 RUN apt-get update && apt-get autoremove -y --purge
-RUN apt-get clean
 
 ## basic build and container setup
 RUN apt-get install -y \
@@ -37,12 +36,13 @@ RUN apt-get install -y \
 	libncurses5 \
 	udev \
 	openssh-client \
+	sudo \
 	libssl-dev
 
-## zephyr setup
+### zephyr setup
 RUN apt-get install -y \
 	aptitude \
-	git-all \
+	git \
 	tig \
 	ninja-build \
 	gperf \
@@ -50,7 +50,7 @@ RUN apt-get install -y \
 	dfu-util \
 	device-tree-compiler \
 	wget \
-	libpython3.8 \
+	libpython3.9 \
 	gcc-multilib \
 	g++-multilib \
 	python3-dev \
@@ -80,13 +80,13 @@ RUN apt-get install -y \
 	mc \
 	minicom \
 	libpython2.7 \
-	sudo \
 	tree \
 	colordiff \
 	htop
 
 ################################################################################
 ## local settings
+USER root
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
@@ -95,8 +95,8 @@ ENV LC_ALL en_US.UTF-8
 ################################################################################
 ## user settings
 USER root
-RUN useradd -m -s /bin/bash "$USER"
-RUN usermod -a -G sudo "$USER"
+RUN groupadd -g "$GID" "$USER"
+RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
 RUN echo "$USER  ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN mkdir -p /usr/local
 RUN chown -R "${USER}":"${USER}" /usr/local
@@ -202,7 +202,6 @@ RUN sudo dpkg -i ./JLink_Linux_x86_64.deb || true  ## ignore "Failed to reload u
 
 ## (opt) set up 'unset preset flags' command script
 RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
-
 
 ################################################################################
 ## command mode
