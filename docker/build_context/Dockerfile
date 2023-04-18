@@ -12,10 +12,11 @@ ARG USER="${USER}"
 ARG UID="${UID}"
 ARG GID="${GID}"
 
-ENV MY_CONFIGS="/home/$USER/configs"
-ENV MY_ZEPHYR_DIR="/home/$USER/zephyrproject"
 ENV MY_ZEPHYR_SDK_VERSION="0.16.0"
-ENV MY_ZEPHYR_SDK="zephyr-sdk-0.16.0_linux-x86_64.tar.xz"
+
+ENV MY_CONFIGS="/home/$USER/configs"
+ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
+ENV MY_ZEPHYR_DIR="/home/$USER/zephyrproject"
 ENV MY_ZEPHYR_SDK_DIR="/home/$USER/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 
 ################################################################################
@@ -89,7 +90,6 @@ RUN apt-get install -y \
 	tree \
 	colordiff \
 	htop
-
 
 ################################################################################
 ## local settings
