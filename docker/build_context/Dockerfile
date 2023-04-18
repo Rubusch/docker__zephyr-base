@@ -2,7 +2,7 @@
 ## ATTENTION: standalone container
 ##
 ################################################################################
-FROM debian:11 AS zephyr
+FROM ubuntu:20.04 AS zephyr
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -13,12 +13,10 @@ ARG UID="${UID}"
 ARG GID="${GID}"
 
 ENV MY_CONFIGS="/home/$USER/configs"
-#ENV MY_CMAKE_VERSION="3.20.5"
-ENV MY_ZEPHYR_SDK_VERSION="0.13.1"
-ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
-
-## older version
-#ENV MY_ZEPHYR_SDK="zephyr-sdk-${ZEPHYR_SDK_VERSION}-setup.run"
+ENV MY_ZEPHYR_DIR="/home/$USER/zephyrproject"
+ENV MY_ZEPHYR_SDK_VERSION="0.16.0"
+ENV MY_ZEPHYR_SDK="zephyr-sdk-0.16.0_linux-x86_64.tar.xz"
+ENV MY_ZEPHYR_SDK_DIR="/home/$USER/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 
 ################################################################################
 ## set up apt fully functional
@@ -40,29 +38,37 @@ RUN apt-get install -y \
 	libssl-dev
 
 ### zephyr setup
-RUN apt-get install -y \
-	aptitude \
+RUN apt-get install -y --no-install-recommends \
 	git \
-	tig \
+	cmake \
 	ninja-build \
 	gperf \
 	ccache \
 	dfu-util \
 	device-tree-compiler \
 	wget \
-	libpython3.9 \
-	gcc-multilib \
-	g++-multilib \
 	python3-dev \
 	python3-pip \
 	python3-setuptools \
 	python3-tk \
 	python3-wheel \
-	xz-utils 
+	xz-utils \
+	file \
+	make \
+	gcc \
+	gcc-multilib \
+	g++-multilib \
+	libsdl2-dev \
+	libmagic1
+
+## recommended python venv
+RUN apt-get install -y \
+	python3-venv
 
 ## development tools
 RUN apt-get install -y \
-	file \
+	aptitude \
+	tig \
 	make \
 	gcc \
 	libsdl2-dev \
@@ -83,6 +89,7 @@ RUN apt-get install -y \
 	tree \
 	colordiff \
 	htop
+
 
 ################################################################################
 ## local settings
@@ -132,17 +139,6 @@ RUN echo "export USER=${USER}" >> /home/$USER/.profile
 RUN mkdir -p /home/$USER/.ssh
 
 ################################################################################
-### tooling
-#USER root
-#
-### cmake in version 3.20+
-#WORKDIR "/opt"
-#RUN wget "https://github.com/Kitware/CMake/releases/download/v${MY_CMAKE_VERSION}/cmake-${MY_CMAKE_VERSION}.tar.gz"
-#RUN tar xzf cmake-*.tar.gz
-#WORKDIR "/opt/cmake-${MY_CMAKE_VERSION}"
-#RUN ./bootstrap && make && sudo make install
-
-################################################################################
 ## zephyr SDK
 USER "${USER}"
 WORKDIR "/home/${USER}"
@@ -150,9 +146,9 @@ WORKDIR "/home/${USER}"
 ## some ssl tweaks (small buffer, timeouts, etc.)
 ## fix for: "error: RPC failed; curl 56 GnuTLS recv error (-110):
 ##   The TLS connection was non-properly terminated"
-RUN git config --global http.sslVerify false
-RUN git config --global http.postBuffer 1048576000
-RUN git config --global init.defaultBranch main
+#RUN git config --global http.sslVerify false
+#RUN git config --global http.postBuffer 1048576000
+#RUN git config --global init.defaultBranch main
 
 ## prepare environment
 RUN ln -s /usr/local /home/$USER/.local
@@ -162,46 +158,56 @@ RUN sudo chown $USER:$USER -R /home/$USER/.local
 
 ## setup west in 'zephyrproject'
 RUN export PATH=/home/${USER}/.local/bin:${PATH}
-RUN pip3 install --user -U west
-RUN test -d /home/${USER}/zephyrproject/.west || west init zephyrproject
 
+################################################################################
+## https://docs.zephyrproject.org/latest/develop/getting_started/index.html 
+##
 USER "${USER}"
-WORKDIR /home/$USER/zephyrproject
+WORKDIR "/home/${USER}"
+RUN wget https://apt.kitware.com/kitware-archive.sh
+RUN sudo bash kitware-archive.sh
+
+## install zephyr
+RUN python3 -m venv ${MY_ZEPHYR_DIR}/.venv
+RUN source ${MY_ZEPHYR_DIR}/.venv/bin/activate
+RUN pip install west
+RUN west init ${MY_ZEPHYR_DIR}
+
+WORKDIR ${MY_ZEPHYR_DIR}
 RUN west update
 RUN west zephyr-export
-RUN pip3 install --user -r zephyr/scripts/requirements.txt
+RUN pip install -r ${MY_ZEPHYR_DIR}/zephyr/scripts/requirements.txt
 
-## (1/2) use zephyr sources to install python requirements, then remove it again (will be mounted from outside)
-RUN rm -rf /home/$USER/zephyrproject/zephyr
-
-## -> github clone here
-
-## (2/2) 'zephyr' will be mounted, so better remove this, to avoid some confusion with overlays...
-#RUN rm -rf /home/$USER/zephyrproject/zephyr
-
-WORKDIR "/home/${USER}"
-USER "${USER}"
-
+################################################################################
 ## zephyr SDK
+##
+USER "${USER}"
+WORKDIR "/home/$USER"
 ## NB: the following typically fails with 'Error in the pull function'
 ## behind a tunneled connection
 RUN wget "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${MY_ZEPHYR_SDK_VERSION}/${MY_ZEPHYR_SDK}"
-RUN chmod +x "${MY_ZEPHYR_SDK}"
-RUN ./"${MY_ZEPHYR_SDK}" -- -d "/usr/local/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
-RUN rm -rf "${MY_ZEPHYR_SDK}"
+RUN tar xvf "${MY_ZEPHYR_SDK}"
 
+WORKDIR "${MY_ZEPHYR_SDK_DIR}"
+RUN chmod +x ./setup.sh
+RUN ./setup.sh
+
+################################################################################
 ## SEGGER, JLink tools
 ## (approach taken from: https://github.com/Scottapotamas/docker-riscv-zephyr/blob/master/Dockerfile)
+USER "${USER}"
+WORKDIR "/home/$USER"
+
 RUN wget -q --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/flasher/JLink_Linux_x86_64.deb
 RUN sudo apt-get install -y udev libxcb-render0 libxcb-render-util0 libxcb-shape0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0 libxkbcommon-x11-0
 RUN sudo dpkg -i ./JLink_Linux_x86_64.deb || true  ## ignore "Failed to reload udevadm rules, retrying..." errors
 
 ## we're inside docker
-#RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
-#RUN sudo udevadm control --reload
+##RUN sudo cp ~/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+##RUN sudo udevadm control --reload
 
 ## (opt) set up 'unset preset flags' command script
-RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
+#RUN echo 'unset CFLAGS CXXFLAGS' | sudo tee -a /etc/profile.d/unset_cflags.sh
 
 ################################################################################
 ## command mode
