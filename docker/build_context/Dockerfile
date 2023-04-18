@@ -2,7 +2,7 @@
 ## ATTENTION: standalone container
 ##
 ################################################################################
-FROM debian:11 AS zephyr-base
+FROM debian:11 AS zephyr
 MAINTAINER Lothar Rubusch <l.rubusch@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -13,7 +13,7 @@ ARG UID="${UID}"
 ARG GID="${GID}"
 
 ENV MY_CONFIGS="/home/$USER/configs"
-ENV MY_CMAKE_VERSION="3.20.5"
+#ENV MY_CMAKE_VERSION="3.20.5"
 ENV MY_ZEPHYR_SDK_VERSION="0.13.1"
 ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}-linux-x86_64-setup.run"
 

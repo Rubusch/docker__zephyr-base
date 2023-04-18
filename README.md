@@ -32,12 +32,12 @@ $ docker-compose build
 
 Build target  
 ```
-$ docker-compose -f ./docker-compose.yml run --rm zephyr-base
+$ docker-compose -f ./docker-compose.yml run --rm zephyr
 ```
 
 Login to develop  
 ```
-$ docker-compose -f ./docker-compose.yml run --rm zephyr-base /bin/bash
+$ docker-compose -f ./docker-compose.yml run --rm zephyr /bin/bash
 docker$ build.sh
 ```
 
