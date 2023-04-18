@@ -139,10 +139,13 @@ RUN echo "export USER=${USER}" >> /home/$USER/.profile
 RUN mkdir -p /home/$USER/.ssh
 
 ################################################################################
-## zephyr SDK
+## https://docs.zephyrproject.org/latest/develop/getting_started/index.html 
+## zephyr
+##
 USER "${USER}"
 WORKDIR "/home/${USER}"
 
+## TODO cleanup?
 ## some ssl tweaks (small buffer, timeouts, etc.)
 ## fix for: "error: RPC failed; curl 56 GnuTLS recv error (-110):
 ##   The TLS connection was non-properly terminated"
@@ -159,17 +162,12 @@ RUN sudo chown $USER:$USER -R /home/$USER/.local
 ## setup west in 'zephyrproject'
 RUN export PATH=/home/${USER}/.local/bin:${PATH}
 
-################################################################################
-## https://docs.zephyrproject.org/latest/develop/getting_started/index.html 
-##
-USER "${USER}"
-WORKDIR "/home/${USER}"
 RUN wget https://apt.kitware.com/kitware-archive.sh
 RUN sudo bash kitware-archive.sh
 
-## install zephyr
-RUN python3 -m venv ${MY_ZEPHYR_DIR}/.venv
-RUN source ${MY_ZEPHYR_DIR}/.venv/bin/activate
+## install zephyr in venv - we're dockerized
+##RUN python3 -m venv ${MY_ZEPHYR_DIR}/.venv
+##RUN source ${MY_ZEPHYR_DIR}/.venv/bin/activate
 RUN pip install west
 RUN west init ${MY_ZEPHYR_DIR}
 
