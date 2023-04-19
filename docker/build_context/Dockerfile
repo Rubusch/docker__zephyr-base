@@ -18,6 +18,9 @@ ENV MY_CONFIGS="/home/$USER/configs"
 ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
 ENV MY_ZEPHYR_DIR="/home/$USER/zephyrproject"
 ENV MY_ZEPHYR_SDK_DIR="/home/$USER/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
+ENV MY_PYTHON_VENV_DIR="/home/$USER/venv"
+
+ENV SCRIPT_DIR="/home/$USER/scripts"
 
 ################################################################################
 ## set up apt fully functional
@@ -60,11 +63,12 @@ RUN apt-get install -y --no-install-recommends \
 	gcc-multilib \
 	g++-multilib \
 	libsdl2-dev \
-	libmagic1
+	libmagic1 \
+	libxcb-randr0
 
 ## recommended python venv
-RUN apt-get install -y \
-	python3-venv
+#RUN apt-get install -y \
+#	python3-venv
 
 ## development tools
 RUN apt-get install -y \
@@ -75,7 +79,7 @@ RUN apt-get install -y \
 	libsdl2-dev \
 	gnutls-bin \
 	usbutils \
-	cmake \
+	expect \
 	vim \
 	vim-addon-manager \
 	vim-youcompleteme \
@@ -118,6 +122,7 @@ WORKDIR "/home/${USER}"
 ## prepare paths
 RUN mkdir -p /home/${USER}/configs
 RUN mkdir -p /home/${USER}/zephyrproject
+RUN mkdir -p "${SCRIPT_DIR}"
 
 ## bash config
 RUN rm -f /home/$USER/.bashrc && ln -s ${MY_CONFIGS}/.bashrc /home/$USER/
@@ -132,6 +137,10 @@ RUN rm -f /home/$USER/.emacs && ln -s ${MY_CONFIGS}/.emacs /home/$USER/
 ## gitconfig (adjustable for patching)
 RUN rm -f /home/$USER/.gitconfig && ln -s ${MY_CONFIGS}/.gitconfig /home/$USER/
 
+## scripts
+COPY *.exp "${SCRIPT_DIR}"
+RUN sudo chown -R ${USER}:${USER} "${SCRIPT_DIR}"
+
 ## user
 RUN echo "export USER=${USER}" >> /home/$USER/.profile
 
@@ -145,14 +154,6 @@ RUN mkdir -p /home/$USER/.ssh
 USER "${USER}"
 WORKDIR "/home/${USER}"
 
-## TODO cleanup?
-## some ssl tweaks (small buffer, timeouts, etc.)
-## fix for: "error: RPC failed; curl 56 GnuTLS recv error (-110):
-##   The TLS connection was non-properly terminated"
-#RUN git config --global http.sslVerify false
-#RUN git config --global http.postBuffer 1048576000
-#RUN git config --global init.defaultBranch main
-
 ## prepare environment
 RUN ln -s /usr/local /home/$USER/.local
 RUN sudo chown $USER:$USER -R /usr/local
@@ -162,39 +163,56 @@ RUN sudo chown $USER:$USER -R /home/$USER/.local
 ## setup west in 'zephyrproject'
 RUN export PATH=/home/${USER}/.local/bin:${PATH}
 
+WORKDIR "${SCRIPT_DIR}"
 RUN wget https://apt.kitware.com/kitware-archive.sh
 RUN sudo bash kitware-archive.sh
 
+## prepare the mount point
+RUN mkdir -p ${MY_ZEPHYR_DIR}
+
+################################################################################
 ## install zephyr in venv - we're dockerized
-##RUN python3 -m venv ${MY_ZEPHYR_DIR}/.venv
-##RUN source ${MY_ZEPHYR_DIR}/.venv/bin/activate
+## (this is better done by script inside the mounted share)
+
+## python venv
+# RUN python3 -m venv ${MY_PYTHON_VENV_DIR}
+# RUN source ${MY_PYTHON_VENV_DIR}/bin/activate
+
 RUN pip install west
 RUN west init ${MY_ZEPHYR_DIR}
-
+ 
 WORKDIR ${MY_ZEPHYR_DIR}
+ 
+## update zephyr base (MY_ZEPHYR_DIR will be over-mounted, but python is updated)
 RUN west update
 RUN west zephyr-export
 RUN pip install -r ${MY_ZEPHYR_DIR}/zephyr/scripts/requirements.txt
-
+ 
 ################################################################################
 ## zephyr SDK
 ##
 USER "${USER}"
-WORKDIR "/home/$USER"
+WORKDIR "${SCRIPT_DIR}"
 ## NB: the following typically fails with 'Error in the pull function'
 ## behind a tunneled connection
 RUN wget "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${MY_ZEPHYR_SDK_VERSION}/${MY_ZEPHYR_SDK}"
-RUN tar xvf "${MY_ZEPHYR_SDK}"
+RUN tar xvf "${MY_ZEPHYR_SDK}" -C "/home/$USER"
 
+## will install cmake systemwide
+USER root
 WORKDIR "${MY_ZEPHYR_SDK_DIR}"
-RUN chmod +x ./setup.sh
-RUN ./setup.sh
+RUN chmod a+x ./setup.sh
+RUN chmod a+x ${SCRIPT_DIR}/setup.exp
 
+USER "${USER}"
+WORKDIR "${MY_ZEPHYR_SDK_DIR}"
+RUN ${SCRIPT_DIR}/setup.exp
+ 
 ################################################################################
 ## SEGGER, JLink tools
 ## (approach taken from: https://github.com/Scottapotamas/docker-riscv-zephyr/blob/master/Dockerfile)
 USER "${USER}"
-WORKDIR "/home/$USER"
+WORKDIR "${SCRIPT_DIR}"
 
 RUN wget -q --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/flasher/JLink_Linux_x86_64.deb
 RUN sudo apt-get install -y udev libxcb-render0 libxcb-render-util0 libxcb-shape0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0 libxkbcommon-x11-0
@@ -212,4 +230,4 @@ RUN sudo dpkg -i ./JLink_Linux_x86_64.deb || true  ## ignore "Failed to reload u
 USER "${USER}"
 WORKDIR "/home/${USER}"
 COPY *.sh /usr/local/bin/
-CMD ["/bin/cat", "/etc/issue"]
+CMD ["/bin/bash", "/usr/local/bin/build.sh"]
