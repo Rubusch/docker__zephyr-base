@@ -43,7 +43,7 @@ docker$ west build -b hifive1_revb samples/basic/blinky
 docker$ west flash
 ```
 
-Make sure the device is plugged (/dev/ttyACM0 exists)  
+**!!!Make sure the device is plugged (/dev/ttyACM0 exists) before entering the container!!!**  
 
 NB: Appending ``--privileged`` is not _safe_! Mainly this is used for such things as connecting the USB (SEGGER) the easiest way possible.  
 
