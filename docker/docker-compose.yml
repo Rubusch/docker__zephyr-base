@@ -19,6 +19,8 @@ services:
           - USER
         env_file:
           - .env
+        group_add:
+          - 20                    ## group: dialout
         volumes:
           ## folder must be around
           - type: bind

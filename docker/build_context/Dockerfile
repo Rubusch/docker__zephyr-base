@@ -108,6 +108,7 @@ ENV LC_ALL en_US.UTF-8
 USER root
 RUN groupadd -g "$GID" "$USER"
 RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
+RUN usermod -aG dialout "${USER}"
 RUN echo "$USER  ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN mkdir -p /usr/local
 RUN chown -R "${USER}":"${USER}" /usr/local

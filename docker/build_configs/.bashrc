@@ -130,3 +130,4 @@ if [[ -z "$(echo ${PATH} | grep '/home/${USER}/.local/bin')" ]]; then
 fi
 
 export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+export ZEPHYR_SDK_INSTALL_DIR=$HOME/zephyr-sdk-0.16.0

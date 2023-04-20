@@ -35,10 +35,12 @@ Build target
 $ docker-compose -f ./docker-compose.yml run --rm zephyr
 ```
 
-Login to develop  
+Login to develop, e.g. for the SiFive HiFive1 Rev B  
 ```
 $ docker-compose -f ./docker-compose.yml run --rm zephyr /bin/bash
-docker$ build.sh
+docker$ cd ./zephyrproject/zephyr
+docker$ west build -b hifive1_revb samples/basic/blinky
+docker$ west flash
 ```
 
 Make sure the device is plugged (/dev/ttyACM0 exists)  
