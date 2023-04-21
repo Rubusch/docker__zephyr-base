@@ -15,12 +15,11 @@ ARG GID="${GID}"
 ENV MY_ZEPHYR_SDK_VERSION="0.16.0"
 
 ENV MY_CONFIGS="/home/$USER/configs"
+ENV MY_SCRIPT_DIR="/home/$USER/scripts"
 ENV MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
 ENV MY_ZEPHYR_DIR="/home/$USER/zephyrproject"
 ENV MY_ZEPHYR_SDK_DIR="/home/$USER/zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}"
 ENV MY_PYTHON_VENV_DIR="/home/$USER/venv"
-
-ENV MY_SCRIPT_DIR="/home/$USER/scripts"
 
 ################################################################################
 ## set up apt fully functional
@@ -108,7 +107,6 @@ ENV LC_ALL en_US.UTF-8
 USER root
 RUN groupadd -g "$GID" "$USER"
 RUN useradd -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
-RUN usermod -aG dialout "${USER}"
 RUN echo "$USER  ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN mkdir -p /usr/local
 RUN chown -R "${USER}":"${USER}" /usr/local
