@@ -11,4 +11,9 @@ jobs:
        - run: sudo usermod -aG docker $USER
        ## setup only
        - checkout
-       - run: cd ./docker && docker-compose up --exit-code-from zephyr-base
+       - run: |
+           cd ./docker
+           echo "UID=$(id -u)" > .env
+           echo "GID=$(id -g)" >> .env
+           docker-compose build
+           docker-compose -f ./docker-compose.yml run --rm zephyr
