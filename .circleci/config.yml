@@ -16,4 +16,4 @@ jobs:
            echo "UID=$(id -u)" > .env
            echo "GID=$(id -g)" >> .env
            docker-compose build
-           docker-compose -f ./docker-compose.yml run --rm zephyr
+           docker-compose -f ./docker-compose.yml run --rm zephyr3.3

@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/Rubusch/docker__zephyr-base.svg?style=shield)](https://circleci.com/gh/Rubusch/docker__zephyr-base)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Rubusch/docker__zephyr-base/tree/zephyr3%2E3.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/Rubusch/docker__zephyr-base/tree/zephyr3%2E3)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 
