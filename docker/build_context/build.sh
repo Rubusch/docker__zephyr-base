@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 export MY_ZEPHYR_SDK_VERSION="0.16.0"
+export ZEPHYR_BRANCH="v3.3-branch"
 
 export MY_CONFIGS="/home/$USER/configs"
 export MY_ZEPHYR_SDK="zephyr-sdk-${MY_ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
@@ -16,9 +17,13 @@ if [ ! -e "${MY_ZEPHYR_DIR}/.west" ]; then
 	pip install west
 	west init ${MY_ZEPHYR_DIR}
 fi
-cd ${MY_ZEPHYR_DIR}
+
+## set to branch
+cd ${MY_ZEPHYR_DIR}/zephyr
+git checkout ${ZEPHYR_BRANCH}
 
 ## update zephyr base
+cd ${MY_ZEPHYR_DIR}
 west update
 west zephyr-export
 pip install -r ${MY_ZEPHYR_DIR}/zephyr/scripts/requirements.txt
