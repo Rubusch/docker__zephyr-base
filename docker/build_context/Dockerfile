@@ -92,6 +92,7 @@ RUN apt-get install -y \
 	libpython2.7 \
 	tree \
 	colordiff \
+	x11-apps \
 	htop
 
 ################################################################################
