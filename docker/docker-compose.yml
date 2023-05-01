@@ -17,11 +17,15 @@ services:
         privileged: true
         environment:
           - USER
+          - DISPLAY=$DISPLAY
         env_file:
           - .env
         group_add:
           - 20                    ## group: dialout
         volumes:
+          ## x11 access
+          - /tmp/.X11-unix:/tmp/.X11-unix
+          - ~/.Xauthority:/root/.Xauthority
           ## folder must be around
           - type: bind
             source: ~/.ssh
@@ -31,3 +35,4 @@ services:
             target: /home/$USER/configs
           ## folders not need to be around
           - ./zephyrproject:/home/${USER}/zephyrproject
+        network_mode: "host"     ## needed for x11 forwarding
